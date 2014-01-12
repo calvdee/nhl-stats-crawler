@@ -1,20 +1,29 @@
 import string
-import csv
-from urlparse import urlparse
-from scrapy.spider import BaseSpider
-from scrapy.selector import Selector
-from scrapy.contrib.loader import ItemLoader
 
-class PlayerSpider(BaseSpider):
+from urlparse import urlparse
+from nhl_stats_crawler.items import RowItem
+from scrapy.spider import Spider
+from scrapy.selector import Selector
+from scrapy import log
+
+class PlayerSpider(Spider):
   name            = "player-spider"
   allowed_domains = ["hockey-reference.com"]
   start_urls      = ["http://hockey-reference.com/players/%s" % (char) for char in list(string.ascii_lowercase)]
   
-  def generate_rows(self, response):
+  def write_rows(self, rows, output):
     """
-    Create an in-memory representation of the html table.
+    Write the rows to a file.
     """
+    prefix = "players-"
+    filename = prefix + output
 
+    with open(filename, 'wb') as csvfile:
+        writer = csv.writer(csvfile, delimiter='\t')
+        for row in rows:
+            writer.writerow(row)    
+
+  def parse(self, response):
     # Setup the selector
     sel = Selector(response)
 
@@ -30,25 +39,14 @@ class PlayerSpider(BaseSpider):
     weight = sel.xpath('//table[@id="players"]//tr/td[6]/text()').extract()
     birth_dates = sel.xpath('//table[@id="players"]//tr/td[7]/a/text()').extract()
 
+    zipped = zip(player_urls, from_date, to_date, pos, height, weight, birth_dates)
+
     # Create the row by zipping columns
-    return zip(player_urls, from_date, to_date, pos, height, weight, birth_dates)
+    items = []
+    for row in zipped:
+        item = RowItem()    
+        item["row"] = row
+        yield item
 
-  def write_rows(self, rows, output):
-    """
-    Write the rows to a file.
-    """
-    prefix = "players-"
-    filename = prefix + output
-
-    with open(filename, 'wb') as csvfile:
-        writer = csv.writer(csvfile, delimiter='\t')
-        for row in rows:
-            writer.writerow(row)    
-
-  def parse(self, response):
-    # Create the rows 
-    rows = self.generate_rows(response)
-
-    # Write the rows to the filename (alpha char)
-    filename = response.url.split('/')[-2:-1][0]
-    self.write_rows(rows, "%s.tsv" % filename)
+    # log.msg("Added %d items" % len(items), level=log.INFO)
+    # yield items
