@@ -4,7 +4,7 @@ class SpreadsheetItem(Item):
   """
   A generic item representing a row of data with columns.
   """
-  spreadsheet = Field()
+  rows = Field()
 
 class SummaryTables(Item):
   """

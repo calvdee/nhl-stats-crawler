@@ -2,7 +2,7 @@ import string
 
 from urlparse import urlparse
 from nhl_stats_crawler.items import SpreadsheetItem
-# from nhl_stats_crawler.base import Spreadsheet
+from nhl_stats_crawler.spreadsheet import Spreadsheet
 from scrapy.spider import Spider
 from scrapy.selector import Selector
 from scrapy.http import Request
@@ -10,50 +10,6 @@ from scrapy import log
 
 
 from scrapy.selector import Selector
-
-class Spreadsheet(object):
-  """
-  Creates spreadsheets from HTML tables
-  """
-  # :param sel The DOM selector
-  # :param header_idx A row index to compute column count
-  # :param table_id Id of the table element in the DOM
-  # :param row_xpath A template for the table expression (defaults to xpath)
-  def __init__(self, sel, header_idx, table_id, row_xpath='//table[@id="%s"]//tr'):
-    self.ROW_XPATH  = row_xpath         # 
-    self.CELL_XPATH = 'td[%d]/text()'
-    self.sel        = sel
-    self.table_id   = table_id
-    self.header_idx = header_idx
-
-    # Build the spreadsheet
-    self.spreadsheet = self._build_spreadsheet(table_id)
-
-  @property
-  def columns(self):
-    """
-    Column generator
-    """
-    for col in self.spreadsheet:
-      yield col
-
-  def _build_spreadsheet(self, table_id):
-    """
-    Builds the spreadsheet 
-    """
-    # Extract the rows
-    rows = self.sel.xpath(self.ROW_XPATH % table_id).extract()
-
-    # Determine the column count from header row index
-    col_count = int(float(rows[self.header_idx].xpath('count(*)').extract()[0]))
-
-    # Project column vectors from the table
-    columns = [rows.xpath(cell_xpath % i).extract() for i in 
-      xrange(header_idx, col_count)]
-  
-    return filter(lambda c: len(c) != 0, columns)
-
-
 
 class PlayerSpider(Spider):
   """
@@ -110,7 +66,8 @@ class PlayerSpider(Spider):
 class PlayerScoreSummarySpider(Spider):
   name            = "player-score-spider"
   allowed_domains = ["hockey-reference.com"]
-  start_urls      = ["http://hockey-reference.com/players/%s" % (char) for char in list(string.ascii_lowercase)]
+  chars = list(string.ascii_lowercase)[0]
+  start_urls      = ["http://hockey-reference.com/players/%s" % char for char in chars]
   
   def write_rows(self, rows, output):
     """
@@ -125,6 +82,7 @@ class PlayerScoreSummarySpider(Spider):
             writer.writerow(row)    
 
   def parse(self, response):
+    log.msg("parsing %s" % response.url)
     # Setup the selector
     sel = Selector(response)
 
@@ -132,8 +90,7 @@ class PlayerScoreSummarySpider(Spider):
     base_url = "http://%s" % urlparse(response.url).netloc
     
     # Create absolute urls from relative hrefs in player table entries
-    player_urls = map(lambda url: "%s/%s" % (base_url, url), 
-        sel.xpath('//table[@id="players"]//tr/td[1]/a/@href').extract())
+    player_urls = map(lambda url: "%s/%s" % (base_url, url), sel.xpath('//table[@id="players"]//tr/td[1]/a/@href').extract())
 
     # Yield requests for score summary pages
     for url in player_urls:
@@ -144,13 +101,15 @@ class PlayerScoreSummarySpider(Spider):
     @url http://www.amazon.com/s?field-keywords=selfish+gene
     @returns items 1
     @returns requests 0 0
-    @scrapes SpreadsheetItem
+    @scrapes spreadsheet
     """
     log.msg("building spreadsheet from %s" % response.url)
+    
     sel = Selector(response)
-    ss = Spreadsheet(sel=sel, header_idx=1, table_id='stats_basic_nhl').spreadsheet
-    spreadsheet = SpreadsheetItem(spreadsheet=ss)
-    return spreadsheet
+
+    # Create the spreadsheet
+    sheet = Spreadsheet(sel=sel, start_index=0, stop_index=21, table_id='stats_basic_nhl').spreadsheet  
+    return SpreadsheetItem(spreadsheet=sheet)
 
   def get_stats_table(self):
     pass
