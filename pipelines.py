@@ -9,7 +9,13 @@ class CsvWriterPipeline(object):
     """
     Open the file and prepare the csv writer.
     """
-    fp = open(filename, 'wb')
+    fp = None
+    try:
+      # First try and append
+      fp = open(filename, 'a')
+    except Exception as e:
+      fp = open(filename, 'wb')
+
     self.writer = csv.writer(fp, delimiter='\t')
 
 
