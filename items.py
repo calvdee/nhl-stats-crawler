@@ -1,10 +1,11 @@
 from scrapy.item import Item, Field
 
-class SpreadsheetItem(Item): 
+class TupleItem(Item): 
   """
-  A generic item representing a row of data with columns.
+  A list of tuples to write to a file.
+
   """
-  rows = Field()
+  tuples = Field()
 
 class SummaryTables(Item):
   """
