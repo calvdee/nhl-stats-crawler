@@ -2,7 +2,7 @@ from scrapy.item import Item, Field
 
 class TupleItem(Item): 
   """
-  A list of tuples to write to a file.
+  A list of tuples
 
   """
   tuples = Field()
