@@ -12,10 +12,8 @@ SPIDER_MODULES = ['nhl_stats_crawler.spiders']
 NEWSPIDER_MODULE = 'nhl_stats_crawler.spiders'
 
 ITEM_PIPELINES = {
-    # 'nhl_stats_crawler.pipelines.PlayerWriterPipeline': 100,
-    # 'nhl_stats_crawler.pipelines.SummarySpreadsheetPipeline': 100,
-    # 'nhl_stats_crawler.pipelines.RosterSpreadsheetPipeline': 100,
     # 'nhl_stats_crawler.pipelines.RosterPipeline': 100,
+    'nhl_stats_crawler.pipelines.PlayerPipeline': 100,
 }
 
 LOG_LEVEL = 'INFO'

@@ -36,3 +36,14 @@ class RosterPipeline(CsvWriterPipeline):
     """
     [self.writer.writerow(tup) for tup in item["tuples"]]
     return item
+
+class PlayerPipeline(CsvWriterPipeline):
+  def __init__(self):
+    super(PlayerPipeline, self).__init__(filename="players.csv")
+
+  def process_item(self, item, spider):
+    """
+    Writes the roster tuples to a file.
+    """
+    [self.writer.writerow(tup) for tup in item["tuples"]]
+    return item

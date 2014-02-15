@@ -58,62 +58,39 @@ class PlayerSpider(Spider):
     """
     log.msg("parsing player url %s" % response.url)
 
-    # # Setup the selector
-    # sel = Selector(response)
-
-    # # Create base url for next page crawl
-    # base = base_url(response)
-
-    # # Determine table name from the URL
-    # table_id = response.url.rstrip('/').split('/')[-1]
-    
-    # # Create absolute urls to seasons
-    # season_urls = urls(sel, base, '//table[@id="%s"]//tr/td[1]/a/@href' % table_id)
-
-    # log.msg("found %d seasons" % len(season_urls))
-
-    # # Yield urls that point to the season
-    # for url in season_urls:
-    #     yield Request(url=url, callback=self.handle_season_url)
-
-  def handle_season_url(self, response):
-    """
-    Generates season rosters
-
-    > scrapy shell http://www.hockey-reference.com//teams/ANA/2014.html
-
-    """
-
-    log.msg("parsing game log url %s" % response.url)
-
+    # Setup the selector
     sel = Selector(response)
-    
-    n_players = len(sel.xpath('//table[@id="roster"]//tr/td[1]/text()'))
-    year = re.sub(r'\.html', '', response.url.split('/')[-1:][0])
-    team = sel.xpath('//div[@id="you_are_here"]/p/a[4]/text()').extract()[0]
 
-
+    # Scrape the data 
+    # We slice most of the lists because the last row is used for summations
     tuple_list = [
-     [team for i in xrange(0, n_players)],                            # team
-     [year for i in xrange(0, n_players)],                            # year
-     sel.xpath('//table[@id="roster"]//tr/td[1]/text()').extract(),   # number
-     sel.xpath('//table[@id="roster"]//tr/td[2]/a/text()').extract(), # player
-     sel.xpath('//table[@id="roster"]//tr/td[3]/text()').extract(),   # position
-     sel.xpath('//table[@id="roster"]//tr/td[4]/text()').extract(),   # age
-     sel.xpath('//table[@id="roster"]//tr/td[5]/text()').extract(),   # height
-     sel.xpath('//table[@id="roster"]//tr/td[6]/text()').extract(),   # weight
-     sel.xpath('//table[@id="roster"]//tr/td[7]/text()').extract(),   # shoots/catches
-     sel.xpath('//table[@id="roster"]//tr/td[8]/text()').extract(),   # experience
-     sel.xpath('//table[@id="roster"]//tr/td[9]/text()').extract(),   # birth_date
-     filter(lambda x: '-' not in x, sel.xpath('//table[@id="roster"]//tr/td[10]/text()').extract()),  # summary
+     sel.xpath('//table[@id="stats_basic_nhl"]//tr/td[1]/text()').extract()[0:-1],    # Season
+     sel.xpath('//table[@id="stats_basic_nhl"]//tr/td[2]/text()').extract(),          # Age
+     sel.xpath('//table[@id="stats_basic_nhl"]//tr/td[3]/a/text()').extract(),        # Team
+     sel.xpath('//table[@id="stats_basic_nhl"]//tr/td[4]/a/text()').extract()[0:-1],  # League
+     sel.xpath('//table[@id="stats_basic_nhl"]//tr/td[5]/text()').extract()[0:-1],    # Games Played
+     sel.xpath('//table[@id="stats_basic_nhl"]//tr/td[6]/text()').extract()[0:-1],    # Goals
+     sel.xpath('//table[@id="stats_basic_nhl"]//tr/td[7]/text()').extract()[0:-1],    # Assists
+     sel.xpath('//table[@id="stats_basic_nhl"]//tr/td[8]/text()').extract()[0:-1],    # Points
+     sel.xpath('//table[@id="stats_basic_nhl"]//tr/td[9]/text()').extract()[0:-1],    # Goals Created
+     sel.xpath('//table[@id="stats_basic_nhl"]//tr/td[10]/text()').extract()[0:-1],    # Plus Minus
+     sel.xpath('//table[@id="stats_basic_nhl"]//tr/td[11]/text()').extract()[0:-1],    # Penalties in Minutes
+     sel.xpath('//table[@id="stats_basic_nhl"]//tr/td[12]/text()').extract()[0:-1],    # Even Strength Goals
+     sel.xpath('//table[@id="stats_basic_nhl"]//tr/td[13]/text()').extract()[0:-1],    # Power Play Goals
+     sel.xpath('//table[@id="stats_basic_nhl"]//tr/td[14]/text()').extract()[0:-1],    # Short Handed Goals
+     sel.xpath('//table[@id="stats_basic_nhl"]//tr/td[15]/text()').extract()[0:-1],    # Game-Winning Goals
+     sel.xpath('//table[@id="stats_basic_nhl"]//tr/td[16]/text()').extract()[0:-1],    # Even Strength Assists
+     sel.xpath('//table[@id="stats_basic_nhl"]//tr/td[17]/text()').extract()[0:-1],    # Short-Handed Assists
+     sel.xpath('//table[@id="stats_basic_nhl"]//tr/td[18]/text()').extract()[0:-1],    # Power Play Assists
+     sel.xpath('//table[@id="stats_basic_nhl"]//tr/td[19]/text()').extract()[0:-1],    # Shots
+     sel.xpath('//table[@id="stats_basic_nhl"]//tr/td[20]/text()').extract()[0:-1],    # Shooting Percentage
+     sel.xpath('//table[@id="stats_basic_nhl"]//tr/td[21]/text()').extract()[0:-1],    # Time On Ice
+     sel.xpath('//table[@id="stats_basic_nhl"]//tr/td[22]/text()').extract()[0:-1]    # Average Time On Ice
     ]
 
     tuples = zip(*[t_list for t_list in tuple_list])
 
-    # year_team_tuples = zip([year for i in xrange(0, len(tuple_list[0]))], tuple_list)
-
     return TupleItem(tuples=tuples)
-
 
 
     
