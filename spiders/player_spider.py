@@ -17,16 +17,23 @@ def base_url(response):
   return "http://%s" % urlparse(response.url).netloc
 
 class PlayerSpider(Spider):
-  name            = "roster-spider"
+  name            = "player-spider"
   allowed_domains = ["hockey-reference.com"] 
   
   def __init__(self, team=None, *args, **kwargs):
     super(PlayerSpider, self).__init__(*args, **kwargs)
     self.team = team
-    self.start_urls = ["http://www.hockey-reference.com/teams/"]
+    self.start_urls = ["http://www.hockey-reference.com/players/%s" % c for c in string.ascii_lowercase]
     self.seen = set()
 
   def parse(self, response):
+    """
+    Yields Request objects to retrieve player data for NHL players
+
+    > scrapy shell http://www.hockey-reference.com/teams/ANA/
+
+    """
+
     log.msg("parsing %s" % response.url)
 
     # Setup the selector
@@ -35,45 +42,39 @@ class PlayerSpider(Spider):
     # Create base url for next page crawl
     base = base_url(response)
     
-    # Create absolute urls from relative hrefs in franchise table
-    team_urls = urls(sel, base, '//table[@id="active_franchises"]//tr/td[1]/a/@href')
+    # Only get NHL players and create absolute urls from relative hrefs in player table
+    player_urls = urls(sel, base, '//table[@id="players"]//tr[@class="nhl"]/td[1]/a/@href')
 
+    # Yield requests for players
+    for url in player_urls:
+        yield Request(url=url, callback=self.handle_player_url)
 
-    # Process one team from command line
-    if self.team != None:
-        team_urls = filter(lambda url: url.rstrip('/').split('/')[-1] == self.team, 
-                           team_urls)
-
-    # Yield requests for seasons
-    for url in team_urls:
-        yield Request(url=url, callback=self.handle_team_url)
-
-  def handle_team_url(self, response):
+  def handle_player_url(self, response):
     """
     Yields Request objects to retrieve season data for a team.
 
-    > scrapy shell http://www.hockey-reference.com/teams/ANA/
+    > scrapy shell http://www.hockey-reference.com/players/a/aaltoan01.html
 
     """
-    log.msg("parsing team url %s" % response.url)
+    log.msg("parsing player url %s" % response.url)
 
-    # Setup the selector
-    sel = Selector(response)
+    # # Setup the selector
+    # sel = Selector(response)
 
-    # Create base url for next page crawl
-    base = base_url(response)
+    # # Create base url for next page crawl
+    # base = base_url(response)
 
-    # Determine table name from the URL
-    table_id = response.url.rstrip('/').split('/')[-1]
+    # # Determine table name from the URL
+    # table_id = response.url.rstrip('/').split('/')[-1]
     
-    # Create absolute urls to seasons
-    season_urls = urls(sel, base, '//table[@id="%s"]//tr/td[1]/a/@href' % table_id)
+    # # Create absolute urls to seasons
+    # season_urls = urls(sel, base, '//table[@id="%s"]//tr/td[1]/a/@href' % table_id)
 
-    log.msg("found %d seasons" % len(season_urls))
+    # log.msg("found %d seasons" % len(season_urls))
 
-    # Yield urls that point to the season
-    for url in season_urls:
-        yield Request(url=url, callback=self.handle_season_url)
+    # # Yield urls that point to the season
+    # for url in season_urls:
+    #     yield Request(url=url, callback=self.handle_season_url)
 
   def handle_season_url(self, response):
     """

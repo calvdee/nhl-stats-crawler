@@ -17,36 +17,36 @@ def base_url(response):
   return "http://%s" % urlparse(response.url).netloc
 
 class RosterSpider(Spider):
-  name            = "player-spider"
+  name            = "roster-spider"
   allowed_domains = ["hockey-reference.com"] 
   
   def __init__(self, team=None, *args, **kwargs):
     super(RosterSpider, self).__init__(*args, **kwargs)
     self.team = team
-    self.start_urls = ["http://www.hockey-reference.com/players/%s" % c for c in string.ascii_lowercase]
+    self.start_urls = ["http://www.hockey-reference.com/teams/"]
     self.seen = set()
 
   def parse(self, response):
     log.msg("parsing %s" % response.url)
 
-    # # Setup the selector
-    # sel = Selector(response)
+    # Setup the selector
+    sel = Selector(response)
 
-    # # Create base url for next page crawl
-    # base = base_url(response)
+    # Create base url for next page crawl
+    base = base_url(response)
     
-    # # Create absolute urls from relative hrefs in franchise table
-    # team_urls = urls(sel, base, '//table[@id="active_franchises"]//tr/td[1]/a/@href')
+    # Create absolute urls from relative hrefs in franchise table
+    team_urls = urls(sel, base, '//table[@id="active_franchises"]//tr/td[1]/a/@href')
 
 
-    # # Process one team from command line
-    # if self.team != None:
-    #     team_urls = filter(lambda url: url.rstrip('/').split('/')[-1] == self.team, 
-    #                        team_urls)
+    # Process one team from command line
+    if self.team != None:
+        team_urls = filter(lambda url: url.rstrip('/').split('/')[-1] == self.team, 
+                           team_urls)
 
-    # # Yield requests for seasons
-    # for url in team_urls:
-    #     yield Request(url=url, callback=self.handle_team_url)
+    # Yield requests for seasons
+    for url in team_urls:
+        yield Request(url=url, callback=self.handle_team_url)
 
   def handle_team_url(self, response):
     """
