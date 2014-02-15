@@ -18,7 +18,7 @@ ITEM_PIPELINES = {
 
 LOG_LEVEL = 'INFO'
 
-# LOG_FILE = 'crawl.log'
+LOG_FILE = 'crawl.log'
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
 USER_AGENT = 'nhl_stats_crawler (+cdl.org)'
