@@ -15,7 +15,7 @@ ITEM_PIPELINES = {
     # 'nhl_stats_crawler.pipelines.PlayerWriterPipeline': 100,
     # 'nhl_stats_crawler.pipelines.SummarySpreadsheetPipeline': 100,
     # 'nhl_stats_crawler.pipelines.RosterSpreadsheetPipeline': 100,
-    'nhl_stats_crawler.pipelines.RosterPipeline': 100,
+    # 'nhl_stats_crawler.pipelines.RosterPipeline': 100,
 }
 
 LOG_LEVEL = 'INFO'
@@ -23,4 +23,4 @@ LOG_LEVEL = 'INFO'
 # LOG_FILE = 'crawl.log'
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
-#USER_AGENT = 'nhl_stats_crawler (+http://www.yourdomain.com)'
+USER_AGENT = 'nhl_stats_crawler (+cdl.org)'
