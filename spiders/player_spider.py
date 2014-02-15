@@ -30,7 +30,7 @@ class PlayerSpider(Spider):
     """
     Yields Request objects to retrieve player data for NHL players
 
-    > scrapy shell http://www.hockey-reference.com/teams/ANA/
+    > scrapy shell http://www.hockey-reference.com/players/a/
 
     """
 
