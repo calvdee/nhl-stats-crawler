@@ -35,3 +35,4 @@ nosetests.xml
 .project
 .pydevproject
 readme.txt
+crawl.log
