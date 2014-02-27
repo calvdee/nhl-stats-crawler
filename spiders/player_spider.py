@@ -56,17 +56,20 @@ class PlayerSpider(Spider):
     > scrapy shell http://www.hockey-reference.com/players/a/aaltoan01.html
 
     """
-    log.msg("parsing player url %s" % response.url)
-
     # Setup the selector
     sel = Selector(response)
 
     # Only grab the first year of the season
     def map_seasons(seasons): return map(lambda x: re.sub(r'-\d+', '', x), seasons)
 
+    row_count = len(sel.xpath('//table[@id="stats_basic_nhl"]//tr/td[1]/text()'))
+    name = sel.xpath('//div[@id="info_box"]/h1/text()').extract()[0]
+    # log.msg("parsing player url %s, player %s" % (response.url, name))
+
     # Scrape the data 
-    # We slice most of the lists because the last row is used for summations
+    # We slice most of the lists because the last row is used for sums
     tuple_list = [
+    [name for i in xrange(0, row_count)],   # Name                                                   
      map_seasons(sel.xpath('//table[@id="stats_basic_nhl"]//tr/td[1]/text()').extract()[0:-1]),    # Season
      sel.xpath('//table[@id="stats_basic_nhl"]//tr/td[2]/text()').extract(),          # Age
      sel.xpath('//table[@id="stats_basic_nhl"]//tr/td[3]/a/text()').extract(),        # Team

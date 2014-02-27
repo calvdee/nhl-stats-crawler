@@ -87,14 +87,14 @@ class RosterSpider(Spider):
 
     sel = Selector(response)
     
-    n_players = len(sel.xpath('//table[@id="roster"]//tr/td[1]/text()'))
+    row_count = len(sel.xpath('//table[@id="roster"]//tr/td[1]/text()'))
     year = re.sub(r'\.html', '', response.url.split('/')[-1:][0])
     team = sel.xpath('//div[@id="you_are_here"]/p/a[4]/text()').extract()[0]
 
 
     tuple_list = [
-     [team for i in xrange(0, n_players)],                            # team
-     [year for i in xrange(0, n_players)],                            # year
+     [team for i in xrange(0, row_count)],                            # team
+     [year for i in xrange(0, row_count)],                            # year
      sel.xpath('//table[@id="roster"]//tr/td[1]/text()').extract(),   # number
      sel.xpath('//table[@id="roster"]//tr/td[2]/a/text()').extract(), # player
      sel.xpath('//table[@id="roster"]//tr/td[3]/text()').extract(),   # position
