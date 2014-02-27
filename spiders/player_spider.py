@@ -34,8 +34,6 @@ class PlayerSpider(Spider):
 
     """
 
-    log.msg("parsing %s" % response.url)
-
     # Setup the selector
     sel = Selector(response)
 
@@ -62,29 +60,15 @@ class PlayerSpider(Spider):
     # Only grab the first year of the season
     def map_seasons(seasons): return map(lambda x: re.sub(r'-\d+', '', x), seasons)
 
-<<<<<<< HEAD
+
     row_count = len(sel.xpath('//table[@id="stats_basic_nhl"]//tr/td[1]/text()'))
     name = sel.xpath('//div[@id="info_box"]/h1/text()').extract()[0]
-    # log.msg("parsing player url %s, player %s" % (response.url, name))
-=======
-    # Determine the player name
-    player_name = sel.xpath('//div[@id="info_box"]/h1/text()').extract()[0]
-
-    # Determine number of rows - 1 (last row is sums).
-    # Generate the player name for each row in tuple_list
-    n_rows = len(sel.xpath('//table[@id="stats_basic_nhl"]//tr/td[1]')) - 1
-
-    player_names = [player_name for i in xrange(0, n_rows)]
->>>>>>> 03fd811577055abeb3f4044de9ef0afaae681d37
+    log.msg("parsing player url %s, player %s" % (response.url, name))
 
     # Scrape the data 
     # We slice most of the lists because the last row is used for sums
     tuple_list = [
-<<<<<<< HEAD
     [name for i in xrange(0, row_count)],   # Name                                                   
-=======
-     player_names,   # Player Name
->>>>>>> 03fd811577055abeb3f4044de9ef0afaae681d37
      map_seasons(sel.xpath('//table[@id="stats_basic_nhl"]//tr/td[1]/text()').extract()[0:-1]),    # Season
      sel.xpath('//table[@id="stats_basic_nhl"]//tr/td[2]/text()').extract(),          # Age
      sel.xpath('//table[@id="stats_basic_nhl"]//tr/td[3]/a/text()').extract(),        # Team
