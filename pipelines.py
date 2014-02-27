@@ -9,7 +9,7 @@ class CsvWriterPipeline(object):
     """
     Open the file and prepare the csv writer.
     """
-    fp = open(filename, 'w')
+    fp = open(filename, 'wb')
 
     self.writer = csv.writer(fp, delimiter='\t')
 
