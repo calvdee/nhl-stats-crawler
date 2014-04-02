@@ -36,3 +36,6 @@ nosetests.xml
 .pydevproject
 readme.txt
 crawl.log
+.RData
+.Rhistory
+header.csv

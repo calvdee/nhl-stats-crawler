@@ -71,7 +71,7 @@ class PlayerSpider(Spider):
     [name for i in xrange(0, row_count)],   # Name                                                   
      map_seasons(sel.xpath('//table[@id="stats_basic_nhl"]//tr/td[1]/text()').extract()[0:-1]),    # Season
      sel.xpath('//table[@id="stats_basic_nhl"]//tr/td[2]/text()').extract(),          # Age
-     sel.xpath('//table[@id="stats_basic_nhl"]//tr/td[3]/a/text()').extract(),        # Team
+     sel.xpath('//table[@id="stats_basic_nhl"]//tr/td[3]/a/@title').extract(),        # Team
      # sel.xpath('//table[@id="stats_basic_nhl"]//tr/td[4]/a/text()').extract()[0:-1],  # League
      sel.xpath('//table[@id="stats_basic_nhl"]//tr/td[5]/text()').extract()[0:-1],    # Games Played
      sel.xpath('//table[@id="stats_basic_nhl"]//tr/td[6]/text()').extract()[0:-1],    # Goals
